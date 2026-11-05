@@ -197,34 +197,73 @@ disconnectButton.addEventListener("click", () => {
         messageField.textContent = "Could not disconnect. Try again.";
     });
 });
-form.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const draft = {
+function readDraft() {
+    return {
         company: companyField.value,
         title: titleField.value,
         url: urlField.value,
         notes: notesInput.value,
     };
+}
+function writeDraft(draft) {
+    companyField.value = draft.company;
+    titleField.value = draft.title;
+    urlField.value = draft.url;
+    notesInput.value = draft.notes;
+}
+function clearDraft() {
+    writeDraft({ company: "", title: "", url: "", notes: "" });
+    filledUrl = "";
+    submitButton.disabled = false;
+}
+function draftProblem(draft) {
+    if (draft.company.trim() === "" || draft.company.trim().length > 200)
+        return "Enter a company name.";
+    if (draft.title.trim() === "" || draft.title.trim().length > 200)
+        return "Enter a job title.";
+    try {
+        const url = new URL(draft.url.trim());
+        if (url.protocol !== "http:" && url.protocol !== "https:")
+            return "Use an http or https job link.";
+    }
+    catch {
+        return "Enter a full job link, starting with https://.";
+    }
+    if (draft.notes.length > 5000)
+        return "Notes are too long.";
+    return null;
+}
+form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const draft = readDraft();
+    const problem = draftProblem(draft);
+    if (problem) {
+        messageField.textContent = problem;
+        return;
+    }
     messageField.textContent = "Saving...";
     try {
         const result = await send({ type: "save-application", ...draft });
-        companyField.value = draft.company;
-        titleField.value = draft.title;
-        urlField.value = draft.url;
-        notesInput.value = draft.notes;
+        if (result.ok) {
+            clearDraft();
+            messageField.textContent = result.message || "Tracked as saved.";
+            return;
+        }
+        writeDraft(draft);
         if (result.status === "expired") {
             showState("expired");
-            messageField.textContent = "";
+            messageField.textContent = "Sign in again. Your job draft is still here.";
             return;
         }
         if (result.status === "disconnected") {
             showState("disconnected");
-            messageField.textContent = "";
+            messageField.textContent = "Connect your account first. Your job draft is still here.";
             return;
         }
-        messageField.textContent = result.message;
+        messageField.textContent = result.message || "Could not save this application. Your draft is still here.";
     }
     catch {
+        writeDraft(draft);
         messageField.textContent = "Could not reach Applyflow. Your draft is still here.";
     }
 });
