@@ -1,0 +1,206 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: "Segoe UI", sans-serif;
+        color: #e7f6ee;
+      }
+      html {
+        min-height: 100%;
+        background: #07140f;
+      }
+      body {
+        margin: 0;
+        min-width: 320px;
+        min-height: 100%;
+        padding: 22px 18px 28px;
+        background: linear-gradient(180deg, #0e3d26 0%, #0b2619 38%, #071a12 70%, #07140f 100%) no-repeat;
+        background-size: 100% 100%;
+      }
+      header {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+      }
+      .mark {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: grid;
+        place-items: center;
+        background: #123524;
+        color: #b7f7d0;
+        font-size: 18px;
+        flex: 0 0 auto;
+      }
+      h1 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+      .sub {
+        margin: 4px 0 0;
+        color: #9fb8aa;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+      section {
+        margin-top: 18px;
+      }
+      .lead, .account, .status, #failed-message, #expired p {
+        margin: 0 0 14px;
+        color: #cfe6da;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+      .status {
+        color: #8fbfa6;
+        margin-top: -8px;
+      }
+      form, .actions {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      label {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-size: 13px;
+        font-weight: 650;
+        color: #d5efe2;
+      }
+      input, textarea, button {
+        font: inherit;
+      }
+      input, textarea {
+        border: 1px solid rgba(120, 190, 150, 0.28);
+        border-radius: 12px;
+        padding: 12px 14px;
+        background: #07140f;
+        color: #e7f6ee;
+        font-weight: 400;
+      }
+      textarea {
+        min-height: 72px;
+        resize: vertical;
+      }
+      button {
+        border-radius: 12px;
+        padding: 12px 14px;
+        cursor: pointer;
+      }
+      button:disabled {
+        opacity: 0.65;
+        cursor: default;
+      }
+      button.primary {
+        border: 0;
+        background: #2ee27a;
+        color: #062114;
+        font-weight: 700;
+        box-shadow: 0 8px 24px rgba(46, 226, 122, 0.18);
+      }
+      button.secondary {
+        border: 1px solid rgba(160, 210, 180, 0.35);
+        background: transparent;
+        color: #e7f6ee;
+      }
+      .connecting {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #d5efe2;
+        font-size: 13px;
+      }
+      .spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(46, 226, 122, 0.25);
+        border-top-color: #2ee27a;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+      #message {
+        min-height: 2.6em;
+        margin: 14px 0 0;
+        font-size: 13px;
+        line-height: 1.4;
+        color: #d5efe2;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="mark" aria-hidden="true">→</div>
+      <div>
+        <h1>Applyflow</h1>
+        <p class="sub">This panel stays open, so you can select the title and company on the job page and paste them here.</p>
+      </div>
+    </header>
+
+    <section id="connect">
+      <p class="lead">Save jobs to your Applyflow account. You approve access on the Applyflow website. This extension never asks for your password.</p>
+      <div class="actions">
+        <button id="connect-button" class="primary" type="button">Connect account</button>
+        <button id="create-account" class="secondary" type="button">Create an account</button>
+      </div>
+    </section>
+
+    <section id="connecting" hidden>
+      <div class="connecting">
+        <span class="spinner" aria-hidden="true"></span>
+        <span>Connecting your Applyflow account...</span>
+      </div>
+    </section>
+
+    <section id="failed" hidden>
+      <p id="failed-message">Could not connect your account.</p>
+      <button id="retry" class="primary" type="button">Try again</button>
+    </section>
+
+    <section id="expired" hidden>
+      <p>This connection expired. Your job draft is still here.</p>
+      <button id="reconnect" class="primary" type="button">Reconnect account</button>
+    </section>
+
+    <section id="session" hidden>
+      <p id="account-name" class="account"></p>
+      <p id="account-status" class="status">Connected</p>
+      <form id="track">
+        <label>
+          Company
+          <input id="company" placeholder="Company" required />
+        </label>
+        <label>
+          Job title
+          <input id="title" placeholder="Job title" required />
+        </label>
+        <label>
+          Job URL
+          <input id="url" type="url" placeholder="https://" required />
+        </label>
+        <label>
+          Notes
+          <textarea id="notes" placeholder="Optional"></textarea>
+        </label>
+        <div class="actions">
+          <button id="read" class="secondary" type="button">Read this page</button>
+          <button id="save" class="primary" type="submit">Track application</button>
+        </div>
+      </form>
+      <div class="actions" style="margin-top: 12px">
+        <button id="disconnect" class="secondary" type="button">Disconnect account</button>
+      </div>
+    </section>
+    <p id="message"></p>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

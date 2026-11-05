@@ -1,0 +1,48 @@
+{
+  "manifest_version": 3,
+  "name": "Applyflow",
+  "version": "0.3.0",
+  "description": "Save a job application you confirm.",
+  "action": {
+    "default_title": "Applyflow"
+  },
+  "side_panel": {
+    "default_path": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "permissions": ["tabs", "activeTab", "scripting", "sidePanel", "storage", "identity"],
+  "host_permissions": [
+    "http://localhost:4000/*",
+    "http://localhost:3000/*",
+    "https://applyflow-gsff.onrender.com/*",
+    "https://applyflow.kevinmasangya.me/*",
+    "https://www.linkedin.com/*",
+    "https://*.indeed.com/*",
+    "https://*.indeed.co.uk/*",
+    "https://*.indeed.ca/*",
+    "https://*.jobstreet.com/*",
+    "https://*.jobstreet.com.ph/*",
+    "https://*.jobstreet.com.sg/*",
+    "https://www.jobstreet.com.ph/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.linkedin.com/jobs/*",
+        "https://*.indeed.com/*",
+        "https://*.indeed.co.uk/*",
+        "https://*.indeed.ca/*",
+        "https://*.jobstreet.com/*",
+        "https://*.jobstreet.com.ph/*",
+        "https://*.jobstreet.com.sg/*",
+        "https://www.jobstreet.com.ph/*"
+      ],
+    "js": ["content.js"],
+    "type": "module",
+    "run_at": "document_idle"
+    }
+  ]
+}
